@@ -1,5 +1,9 @@
 package zaklad.model;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 public class Produkt {
     private String nazwa;
     private double cena;
@@ -48,6 +52,21 @@ public class Produkt {
             this.ilośćDostępnychSztuk -= ilość;
         } else {
             System.out.println("Brak wystarczającej ilości produktu.");
+        }
+    }
+
+    public static boolean sprawdźPoprawnośćDaty(String data) {
+        // czy format (RRRR-MM-DD)
+        if (data.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            // czy jest data
+            try {
+                LocalDate.parse(data, DateTimeFormatter.ISO_LOCAL_DATE);
+                return true;
+            } catch (DateTimeParseException e) {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 

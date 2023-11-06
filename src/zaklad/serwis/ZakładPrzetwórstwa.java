@@ -42,6 +42,38 @@ public class ZakładPrzetwórstwa {
         zamowienie.setStatus(nowyStatus);
     }
 
+    public List<Produkt> getProdukty() {
+        return produkty;
+    }
+
+    public void setProdukty(List<Produkt> produkty) {
+        this.produkty = produkty;
+    }
+
+    public List<Dostawca> getDostawcy() {
+        return dostawcy;
+    }
+
+    public void setDostawcy(List<Dostawca> dostawcy) {
+        this.dostawcy = dostawcy;
+    }
+
+    public List<Klient> getKlienci() {
+        return klienci;
+    }
+
+    public void setKlienci(List<Klient> klienci) {
+        this.klienci = klienci;
+    }
+
+    public List<Zamowienie> getZamowienia() {
+        return zamowienia;
+    }
+
+    public void setZamowienia(List<Zamowienie> zamowienia) {
+        this.zamowienia = zamowienia;
+    }
+
     public List<Zamowienie> PobierzZamówieniaKlienta(Klient klient) {
         List<Zamowienie> zamówieniaKlienta = new ArrayList<>();
         for (Zamowienie zamowienie : zamowienia) {
