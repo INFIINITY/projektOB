@@ -1,6 +1,7 @@
 package zaklad;
 
 import zaklad.model.*;
+import zaklad.model.produktyZakladu.*;
 import zaklad.serwis.*;
 
 import java.util.Scanner;
@@ -9,7 +10,7 @@ import static zaklad.model.Produkt.sprawdźPoprawnośćDaty;
 
 public class Main {
     public static void main(String[] args) {
-        ZakładPrzetwórstwa zakład = new ZakładPrzetwórstwa();
+        ZakladPrzetworstwa zakład = new ZakladPrzetworstwa();
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -21,6 +22,7 @@ public class Main {
             System.out.println("5. Aktualizuj status zamówienia");
             System.out.println("6. Generuj raport");
             System.out.println("7. Oblicz zyski");
+            System.out.println("8. Pokaż dostępne produkty");
             System.out.println("0. Wyjdź z programu");
 
             System.out.print("Wybierz opcję: ");
@@ -29,41 +31,69 @@ public class Main {
             switch (wybór) {
                 case 1:
                     // Dodawanie produktu
-                    System.out.print("Podaj nazwę produktu: ");
-                    String nazwaProduktu = scanner.next();
-                    double cenaProduktu;
-                    while (true) {
-                        System.out.print("Podaj cenę produktu: ");
-                        if (scanner.hasNextDouble()) {
-                            cenaProduktu = scanner.nextDouble();
+                    System.out.print("Podaj nazwę produktu (OWOC LUB WARZYWO): ");
+                    String nazwaProduktu = scanner.next().toLowerCase();
+
+                    // Sprawdź, czy produkt już istnieje
+                    boolean produktIstnieje = false;
+                    for (Produkt p : zakład.getProdukty()) {
+                        if (p.getNazwa().equals(nazwaProduktu)) {
+                            p.setIlośćDostępnychSztuk(p.getIlośćDostępnychSztuk() + 1);
+                            produktIstnieje = true;
                             break;
-                        } else {
-                            System.out.println("Nieprawidłowa cena produktu. Wprowadź liczbę.");
-                            scanner.next();
                         }
                     }
-                    System.out.print("Podaj ilość dostępnych sztuk: ");
-                    int ilośćSztuk = scanner.nextInt();
-                    String dataProdukcji, dataWażności;
-                    while (true) {
-                        System.out.print("Podaj datę produkcji (RRRR-MM-DD): ");
-                        dataProdukcji = scanner.next();
-                        System.out.print("Podaj datę ważności (RRRR-MM-DD): ");
-                        dataWażności = scanner.next();
 
-                        if (sprawdźPoprawnośćDaty(dataProdukcji) && sprawdźPoprawnośćDaty(dataWażności)) {
-                            if (dataProdukcji.compareTo(dataWażności) <= 0) {
+                    // Jeśli produkt nie istnieje, dodaj nowy
+                    if (!produktIstnieje) {
+                        double cenaProduktu;
+                        while (true) {
+                            System.out.print("Podaj cenę produktu za 1kg: ");
+                            if (scanner.hasNextDouble()) {
+                                cenaProduktu = scanner.nextDouble();
                                 break;
                             } else {
-                                System.out.println("Data produkcji nie może być późniejsza niż data ważności.");
+                                System.out.println("Nieprawidłowa cena produktu. Wprowadź liczbę.");
+                                scanner.next();
                             }
-                        } else {
-                            System.out.println("Nieprawidłowy format daty. Poprawny format to RRRR-MM-DD.");
                         }
+
+                        String dataProdukcji, dataWażności;
+                        while (true) {
+                            System.out.print("Podaj datę produkcji (RRRR-MM-DD): ");
+                            dataProdukcji = scanner.next();
+                            System.out.print("Podaj datę ważności (RRRR-MM-DD): ");
+                            dataWażności = scanner.next();
+
+                            if (Produkt.sprawdźPoprawnośćDaty(dataProdukcji) && Produkt.sprawdźPoprawnośćDaty(dataWażności)) {
+                                if (dataProdukcji.compareTo(dataWażności) <= 0) {
+                                    break;
+                                } else {
+                                    System.out.println("Data produkcji nie może być późniejsza niż data ważności.");
+                                }
+                            } else {
+                                System.out.println("Nieprawidłowy format daty. Poprawny format to RRRR-MM-DD.");
+                            }
+                        }
+
+                        System.out.print("Podaj typ produktu (owoc/warzywo): ");
+                        String typProduktu = scanner.next().toLowerCase();
+
+                        Produkt produkt;
+                        if (typProduktu.equals("owoc")) {
+                            produkt = new Owoc(nazwaProduktu, cenaProduktu, dataProdukcji, dataWażności);
+                        } else if (typProduktu.equals("warzywo")) {
+                            produkt = new Warzywo(nazwaProduktu, cenaProduktu, dataProdukcji, dataWażności);
+                        } else {
+                            System.out.println("Nieprawidłowy typ produktu. Dodanie produktu przerwane.");
+                            break;
+                        }
+
+                        zakład.DodajProdukt(produkt);
+                        System.out.println("Produkt dodany.");
+                    } else {
+                        System.out.println("Ilość produktu zwiększona o 1.");
                     }
-                    Produkt produkt = new Produkt(nazwaProduktu, cenaProduktu, ilośćSztuk, dataProdukcji, dataWażności);
-                    zakład.DodajProdukt(produkt);
-                    System.out.println("Produkt dodany.");
                     break;
                 case 2:
                     // Dodawanie dostawcy
@@ -163,7 +193,7 @@ public class Main {
                     System.out.println("Zamówienie zostało złożone.");
                     break;
                 case 5:
-                // Aktualizacja statusu zamówienia
+                    // Aktualizacja statusu zamówienia
                     // ...
                     break;
                 case 6:
@@ -173,6 +203,22 @@ public class Main {
                 case 7:
                     // Obliczanie zysków
                     // ...
+                    break;
+                case 8:
+                    // Wyświetlanie produktów
+                    if (zakład.getProdukty().isEmpty()) {
+                        System.out.println("Nie posiadamy produktów.");
+                    } else {
+                        System.out.println("Lista produktów:");
+                        for (Produkt produktowocwarzywo : zakład.getProdukty()) {
+                            System.out.println("Nazwa: " + produktowocwarzywo.getNazwa() +
+                                    ", Typ: " + (produktowocwarzywo instanceof Owoc ? "Owoc" : "Warzywo") +
+                                    ", Cena za 1kg: " + produktowocwarzywo.getCena() +
+                                    "zł, Data produkcji: " + produktowocwarzywo.getDataProdukcji() +
+                                    ", Data ważności: " + produktowocwarzywo.getDataWażności() +
+                                    ", Ilość dostępnych sztuk: " + produktowocwarzywo.getIlośćDostępnychSztuk());
+                        }
+                    }
                     break;
                 case 0:
                     System.out.println("Dziękujemy za skorzystanie z programu.");

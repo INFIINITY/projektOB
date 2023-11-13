@@ -4,17 +4,17 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class Produkt {
+public abstract class Produkt {
     private String nazwa;
     private double cena;
     private int ilośćDostępnychSztuk;
     private String dataProdukcji;
     private String dataWażności;
 
-    public Produkt(String nazwa, double cena, int ilośćDostępnychSztuk, String dataProdukcji, String dataWażności) {
+    public Produkt(String nazwa, double cena, String dataProdukcji, String dataWażności) {
         this.nazwa = nazwa;
         this.cena = cena;
-        this.ilośćDostępnychSztuk = ilośćDostępnychSztuk;
+        this.ilośćDostępnychSztuk = 1;
         this.dataProdukcji = dataProdukcji;
         this.dataWażności = dataWażności;
     }
@@ -43,22 +43,20 @@ public class Produkt {
         return dataWażności;
     }
 
-    public void dodajSztuki(int ilość) {
-        this.ilośćDostępnychSztuk += ilość;
+    public void dodajSztukę() {
+        this.ilośćDostępnychSztuk++;
     }
 
-    public void odejmijSztuki(int ilość) {
-        if (ilośćDostępnychSztuk >= ilość) {
-            this.ilośćDostępnychSztuk -= ilość;
+    public void odejmijSztukę() {
+        if (ilośćDostępnychSztuk > 0) {
+            this.ilośćDostępnychSztuk--;
         } else {
-            System.out.println("Brak wystarczającej ilości produktu.");
+            System.out.println("Brak dostępnych sztuk produktu.");
         }
     }
 
     public static boolean sprawdźPoprawnośćDaty(String data) {
-        // czy format (RRRR-MM-DD)
         if (data.matches("\\d{4}-\\d{2}-\\d{2}")) {
-            // czy jest data
             try {
                 LocalDate.parse(data, DateTimeFormatter.ISO_LOCAL_DATE);
                 return true;
@@ -69,7 +67,4 @@ public class Produkt {
             return false;
         }
     }
-
 }
-
-
