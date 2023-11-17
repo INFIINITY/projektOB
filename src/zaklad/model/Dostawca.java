@@ -1,14 +1,22 @@
 package zaklad.model;
 
 public class Dostawca {
+    private static int aktualneID = 1;
+    private int id;
     private String nazwa;
     private String adres;
     private String numerKontaktowy;
 
-    public Dostawca(String nazwa, String adres, String numerKontaktowy) {
+    public Dostawca(String nazwa, String adres, String numerKontaktowy, String kraj) {
+        this.id = aktualneID++;
         this.nazwa = nazwa;
         this.adres = adres;
-        this.numerKontaktowy = numerKontaktowy;
+        if (Klient.krajeIKody.containsKey(kraj.toLowerCase())) {
+            String kodKraju = Klient.krajeIKody.get(kraj.toLowerCase());
+            this.numerKontaktowy = kodKraju + " " + numerKontaktowy;
+        } else {
+            this.numerKontaktowy = numerKontaktowy;
+        }
     }
 
     public String getNazwa() {
@@ -20,7 +28,11 @@ public class Dostawca {
     }
 
     public String getNumerKontaktowy() {
-        return numerKontaktowy;
+        if (numerKontaktowy.startsWith("+")) {
+            return numerKontaktowy;
+        } else {
+            return Klient.krajeIKody.getOrDefault(numerKontaktowy.toLowerCase(), "") + " " + numerKontaktowy;
+        }
     }
 
     public void setNazwa(String nazwa) {

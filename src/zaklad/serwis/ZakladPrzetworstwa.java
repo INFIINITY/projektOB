@@ -72,7 +72,6 @@ public class ZakladPrzetworstwa {
 
     public List<Klient> getKlienci() {
         return klienci;
-
     }
 
     public void setKlienci(List<Klient> klienci) {
@@ -95,6 +94,24 @@ public class ZakladPrzetworstwa {
             }
         }
         return zamówieniaKlienta;
+    }
+
+    public boolean sprawdzKlienta(String imie, String nazwisko) {
+        for (Klient klient : klienci) {
+            if (klient.getImie().equalsIgnoreCase(imie) && klient.getNazwisko().equalsIgnoreCase(nazwisko)) {
+                return true; // Klient o podanych imieniu i nazwisku już istnieje
+            }
+        }
+        return false; // Klient o podanych imieniu i nazwisku nie istnieje
+    }
+
+    public boolean sprawdzDostawcę(String nazwa) {
+        for (Dostawca dostawca : dostawcy) {
+            if (dostawca.getNazwa().equalsIgnoreCase(nazwa)) {
+                return true; // Dostawca o podanej nazwie już istnieje
+            }
+        }
+        return false; // Dostawca o podanej nazwie nie istnieje
     }
 
     public void WygenerujRaport() {

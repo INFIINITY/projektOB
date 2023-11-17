@@ -4,6 +4,7 @@ import zaklad.model.*;
 import zaklad.model.produktyZakladu.*;
 import zaklad.serwis.*;
 
+import java.util.List;
 import java.util.Scanner;
 
 import static zaklad.model.Produkt.sprawdźPoprawnośćDaty;
@@ -23,6 +24,8 @@ public class Main {
             System.out.println("6. Generuj raport");
             System.out.println("7. Oblicz zyski");
             System.out.println("8. Pokaż dostępne produkty");
+            System.out.println("9. Pokaż listę klientów");
+            System.out.println("10. Pokaż listę dostawców");
             System.out.println("0. Wyjdź z programu");
 
             System.out.print("Wybierz opcję: ");
@@ -99,96 +102,118 @@ public class Main {
                     // Dodawanie dostawcy
                     System.out.print("Podaj nazwę dostawcy: ");
                     String nazwaDostawcy = scanner.next();
-                    System.out.print("Podaj adres dostawcy: ");
-                    String adresDostawcy = scanner.next();
-                    System.out.print("Podaj numer kontaktowy dostawcy: ");
-                    String numerKontaktowyDostawcy = scanner.next();
 
-                    Dostawca dostawca = new Dostawca(nazwaDostawcy, adresDostawcy, numerKontaktowyDostawcy);
-                    zakład.DodajDostawcę(dostawca);
-                    System.out.println("Dostawca dodany.");
+                    // Sprawdzenie istnienia dostawcy o podanej nazwie
+                    if (zakład.sprawdzDostawcę(nazwaDostawcy)) {
+                        System.out.println("Dostawca o podanej nazwie już istnieje.");
+                        break;
+                    }
+
+                    System.out.print("Podaj adres dostawcy: ");
+                    scanner.nextLine(); // Czyść bufor przed wprowadzeniem adresu
+                    String adresDostawcy = scanner.nextLine();
+
+                    // Wyświetlanie dostępnych krajów (numery kierunkowe)
+                    System.out.println("Dostępne kraje (numery kierunkowe):");
+                    for (String kraj : Klient.krajeIKody.keySet()) {
+                        System.out.println(kraj);
+                    }
+                    System.out.print("Wybierz kraj dostawcy (numer kierunkowy): ");
+                    String krajDostawcy = scanner.next();
+
+                    boolean dodanoDostawce = false;
+
+                    do {
+                        System.out.print("Podaj numer kontaktowy dostawcy: ");
+                        String numerKontaktowyDostawcy = scanner.next();
+
+                        int maksymalnaDlugosc = Klient.maksymalnaDlugoscNumeru(krajDostawcy);
+                        if (maksymalnaDlugosc != 0 && numerKontaktowyDostawcy.length() > maksymalnaDlugosc) {
+                            System.out.println("Numer kontaktowy jest zbyt długi dla wybranego kraju.");
+                            System.out.println("Maksymalna długość numeru dla tego kraju to: " + maksymalnaDlugosc);
+                            System.out.println("Proszę wprowadzić ponownie numer telefonu ");
+                        } else {
+                            Dostawca dostawca = new Dostawca(nazwaDostawcy, adresDostawcy, numerKontaktowyDostawcy, krajDostawcy);
+                            zakład.DodajDostawcę(dostawca);
+                            System.out.println("Dostawca dodany.");
+                            dodanoDostawce = true;
+                        }
+                    } while (!dodanoDostawce);
                     break;
                 case 3:
-                    // Dodawanie klienta
+                    boolean dodanoKlienta = false;
+
                     System.out.print("Podaj imię klienta: ");
                     String imięKlienta = scanner.next();
                     System.out.print("Podaj nazwisko klienta: ");
                     String nazwiskoKlienta = scanner.next();
-                    System.out.print("Podaj adres klienta: ");
-                    String adresKlienta = scanner.next();
-                    System.out.print("Podaj numer kontaktowy klienta: ");
-                    String numerKontaktowyKlienta = scanner.next();
 
-                    Klient klient = new Klient(imięKlienta, nazwiskoKlienta, adresKlienta, numerKontaktowyKlienta);
-                    zakład.DodajKlienta(klient);
-                    System.out.println("Klient dodany.");
+                    // Sprawdzenie istnienia klienta o podanych imieniu i nazwisku
+                    if (zakład.sprawdzKlienta(imięKlienta, nazwiskoKlienta)) {
+                        System.out.println("Klient o podanych danych już istnieje.");
+                        break;
+                    }
+
+                    System.out.print("Podaj adres klienta: ");
+                    scanner.nextLine();
+                    String adresKlienta = scanner.nextLine();
+
+                    System.out.println("Dostępne kraje:");
+                    for (String kraj : Klient.krajeIKody.keySet()) {
+                        System.out.println(kraj);
+                    }
+                    System.out.print("Wybierz kraj klienta: ");
+                    String krajKlienta = scanner.next();
+
+                    do {
+                        System.out.print("Podaj numer kontaktowy klienta: ");
+                        String numerKontaktowyKlienta = scanner.next();
+
+                        int maksymalnaDlugosc = Klient.maksymalnaDlugoscNumeru(krajKlienta);
+                        if (maksymalnaDlugosc != 0 && numerKontaktowyKlienta.length() > maksymalnaDlugosc) {
+                            System.out.println("Numer kontaktowy jest zbyt długi dla wybranego kraju.");
+                            System.out.println("Maksymalna długość numeru dla tego kraju to: " + maksymalnaDlugosc);
+                            System.out.println("Proszę wprowadzić ponownie numer telefonu ");
+                        } else {
+                            Klient klient = new Klient(imięKlienta, nazwiskoKlienta, adresKlienta, numerKontaktowyKlienta);
+                            klient.setNumerKontaktowy(numerKontaktowyKlienta, krajKlienta);
+                            zakład.DodajKlienta(klient);
+                            System.out.println("Klient dodany.");
+                            dodanoKlienta = true;
+                        }
+                    } while (!dodanoKlienta);
                     break;
                 case 4:
-                    // Składanie zamówienia
                     Klient wybranyKlient = null;
 
                     if (zakład.getKlienci().isEmpty()) {
-                        System.out.println("Brak dostępnych klientów. Czy chcesz stworzyć konto klienta? (tak/nie)");
-                        String odpowiedź = scanner.next();
-
-                        if (odpowiedź.equalsIgnoreCase("tak")) {
-                            System.out.print("Podaj imię klienta: ");
-                            String noweImięKlienta = scanner.next();
-                            System.out.print("Podaj nazwisko klienta: ");
-                            String noweNazwiskoKlienta = scanner.next();
-                            System.out.print("Podaj adres klienta: ");
-                            String nowyAdresKlienta = scanner.next();
-                            System.out.print("Podaj numer kontaktowy klienta: ");
-                            String nowyNumerKontaktowyKlienta = scanner.next();
-
-                            Klient nowyKlient = new Klient(noweImięKlienta, noweNazwiskoKlienta, nowyAdresKlienta, nowyNumerKontaktowyKlienta);
-                            zakład.DodajKlienta(nowyKlient);
-                            System.out.println("Nowy profil klienta utworzony.");
-                            wybranyKlient = nowyKlient;
-                        } else {
-                            System.out.println("Nie utworzono zamówienia. Brak dostępnych klientów.");
-                            break;
-                        }
+                        System.out.println("Brak dostępnych klientów. Proszę utworzyć konto klienta.");
+                        break; // Powrót do głównego menu
                     } else {
                         System.out.println("Dostępni klienci:");
                         for (Klient klient2 : zakład.getKlienci()) {
-                            System.out.println(klient2.getImie() + " " + klient2.getNazwisko());
+                            System.out.println("ID: " + klient2.getKlientId() + ", " + klient2.getImie() + " " + klient2.getNazwisko());
                         }
 
-                        System.out.print("Podaj imię i nazwisko klienta lub 'nowy' aby utworzyć nowe konto: ");
-                        String imięNazwisko = scanner.next();
+                        System.out.print("Podaj ID klienta: ");
+                        int clientId = scanner.nextInt();
 
-                        if (imięNazwisko.equalsIgnoreCase("nowy")) {
-                            System.out.print("Podaj imię klienta: ");
-                            String noweImięKlienta = scanner.next();
-                            System.out.print("Podaj nazwisko klienta: ");
-                            String noweNazwiskoKlienta = scanner.next();
-                            System.out.print("Podaj adres klienta: ");
-                            String nowyAdresKlienta = scanner.next();
-                            System.out.print("Podaj numer kontaktowy klienta: ");
-                            String nowyNumerKontaktowyKlienta = scanner.next();
-
-                            Klient nowyKlient = new Klient(noweImięKlienta, noweNazwiskoKlienta, nowyAdresKlienta, nowyNumerKontaktowyKlienta);
-                            zakład.DodajKlienta(nowyKlient);
-                            System.out.println("Nowy profil klienta utworzony.");
-                            wybranyKlient = nowyKlient;
-                        } else {
-                            for (Klient klient3 : zakład.getKlienci()) {
-                                if ((klient3.getImie() + " " + klient3.getNazwisko()).equalsIgnoreCase(imięNazwisko)) {
-                                    wybranyKlient = klient3;
-                                    break;
-                                }
-                            }
-
-                            if (wybranyKlient == null) {
-                                System.out.println("Klient o podanym imieniu i nazwisku nie istnieje.");
+                        boolean klientExists = false;
+                        for (Klient klient : zakład.getKlienci()) {
+                            if (klient.getKlientId() == clientId) {
+                                wybranyKlient = klient;
+                                klientExists = true;
                                 break;
                             }
+                        }
+
+                        if (!klientExists) {
+                            System.out.println("Klient o podanym ID nie istnieje.");
+                            break;
                         }
                     }
 
                     Zamowienie noweZamowienie = new Zamowienie(wybranyKlient);
-
                     zakład.PrzyjmijZamówienie(noweZamowienie);
                     System.out.println("Zamówienie zostało złożone.");
                     break;
@@ -217,6 +242,34 @@ public class Main {
                                     "zł, Data produkcji: " + produktowocwarzywo.getDataProdukcji() +
                                     ", Data ważności: " + produktowocwarzywo.getDataWażności() +
                                     ", Ilość dostępnych sztuk: " + produktowocwarzywo.getIlośćDostępnychSztuk());
+                        }
+                    }
+                    break;
+                case 9:
+                    List<Klient> klienci = zakład.getKlienci();
+                    if (klienci.isEmpty()) {
+                        System.out.println("Nie posiadamy żadnych klientów.");
+                    } else {
+                        System.out.println("Lista klientów:");
+                        for (Klient klient : klienci) {
+                            System.out.println("ID: " + klient.getKlientId() +
+                                    ", Imię: " + klient.getImie() +
+                                    ", Nazwisko: " + klient.getNazwisko() +
+                                    ", Adres: " + klient.getAdres() +
+                                    ", Numer kontaktowy: " + klient.getNumerKontaktowy());
+                        }
+                    }
+                    break;
+                case 10:
+                    List<Dostawca> dostawcy = zakład.getDostawcy();
+                    if (dostawcy.isEmpty()) {
+                        System.out.println("Nie posiadamy żadnych dostawców.");
+                    } else {
+                        System.out.println("Lista dostawców:");
+                        for (Dostawca dostawca : dostawcy) {
+                            System.out.println("Nazwa: " + dostawca.getNazwa() +
+                                    ", Adres: " + dostawca.getAdres() +
+                                    ", Numer kontaktowy: " + dostawca.getNumerKontaktowy());
                         }
                     }
                     break;

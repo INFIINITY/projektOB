@@ -10,6 +10,7 @@ public abstract class Produkt {
     private int ilośćDostępnychSztuk;
     private String dataProdukcji;
     private String dataWażności;
+    private Dostawca dostawcaProduktu; // Dodane pole przechowujące informację o dostawcy
 
     public Produkt(String nazwa, double cena, String dataProdukcji, String dataWażności) {
         this.nazwa = nazwa;
@@ -66,5 +67,15 @@ public abstract class Produkt {
         } else {
             return false;
         }
+    }
+
+    // Dodana metoda do przypisywania dostawcy do produktu
+    public void przypiszDostawcę(Dostawca dostawca) {
+        this.dostawcaProduktu = dostawca;
+    }
+
+    // Dodana metoda do pobierania dostawcy produktu
+    public Dostawca pobierzDostawcę() {
+        return dostawcaProduktu;
     }
 }
