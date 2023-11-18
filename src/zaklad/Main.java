@@ -26,6 +26,7 @@ public class Main {
             System.out.println("8. Pokaż dostępne produkty");
             System.out.println("9. Pokaż listę klientów");
             System.out.println("10. Pokaż listę dostawców");
+            System.out.println("11. Easter Egg");
             System.out.println("0. Wyjdź z programu");
 
             System.out.print("Wybierz opcję: ");
@@ -33,21 +34,39 @@ public class Main {
 
             switch (wybór) {
                 case 1:
-                    // Dodawanie produktu
+                    // Kod dla dodawania produktu
+                    if (zakład.getListaDostawcow().isEmpty()) {
+                        System.out.println("Nie ma żadnych dostawców. Najpierw dodaj dostawcę.");
+                        break;
+                    }
+
+                    System.out.println("Dostępni dostawcy:");
+                    for (Dostawca dostawca : zakład.getListaDostawcow()) {
+                        System.out.println("ID: " + dostawca.getId() + " Nazwa: " + dostawca.getNazwa());
+                    }
+
+                    System.out.print("Podaj ID dostawcy dla produktu: ");
+                    int idDostawcy = scanner.nextInt();
+
+                    Dostawca wybranyDostawca = zakład.znajdzDostawce(idDostawcy, zakład.getListaDostawcow());
+                    if (wybranyDostawca == null) {
+                        System.out.println("Nie ma dostawcy o podanym ID.");
+                        break;
+                    }
+
                     System.out.print("Podaj nazwę produktu (OWOC LUB WARZYWO): ");
                     String nazwaProduktu = scanner.next().toLowerCase();
 
-                    // Sprawdź, czy produkt już istnieje
+                    // Sprawdzenie istnienia produktu o danej nazwie i dodawanie produktu
                     boolean produktIstnieje = false;
                     for (Produkt p : zakład.getProdukty()) {
-                        if (p.getNazwa().equals(nazwaProduktu)) {
+                        if (p.getNazwa().equals(nazwaProduktu) && p.pobierzDostawcę().getId() == idDostawcy) {
                             p.setIlośćDostępnychSztuk(p.getIlośćDostępnychSztuk() + 1);
                             produktIstnieje = true;
                             break;
                         }
                     }
 
-                    // Jeśli produkt nie istnieje, dodaj nowy
                     if (!produktIstnieje) {
                         double cenaProduktu;
                         while (true) {
@@ -91,7 +110,8 @@ public class Main {
                             System.out.println("Nieprawidłowy typ produktu. Dodanie produktu przerwane.");
                             break;
                         }
-
+                        // Przypisanie wybranego dostawcy do nowego produktu
+                        produkt.przypiszDostawcę(wybranyDostawca);
                         zakład.DodajProdukt(produkt);
                         System.out.println("Produkt dodany.");
                     } else {
@@ -235,13 +255,20 @@ public class Main {
                         System.out.println("Nie posiadamy produktów.");
                     } else {
                         System.out.println("Lista produktów:");
-                        for (Produkt produktowocwarzywo : zakład.getProdukty()) {
-                            System.out.println("Nazwa: " + produktowocwarzywo.getNazwa() +
-                                    ", Typ: " + (produktowocwarzywo instanceof Owoc ? "Owoc" : "Warzywo") +
-                                    ", Cena za 1kg: " + produktowocwarzywo.getCena() +
-                                    "zł, Data produkcji: " + produktowocwarzywo.getDataProdukcji() +
-                                    ", Data ważności: " + produktowocwarzywo.getDataWażności() +
-                                    ", Ilość dostępnych sztuk: " + produktowocwarzywo.getIlośćDostępnychSztuk());
+                        for (Produkt produkt : zakład.getProdukty()) {
+                            Dostawca dostawcaProduktu = produkt.pobierzDostawcę();
+                            if (dostawcaProduktu != null && dostawcaProduktu.getId() == produkt.pobierzDostawcę().getId()) {
+                                System.out.println("ID: " + produkt.getId() +
+                                        ", Nazwa: " + produkt.getNazwa() +
+                                        ", Typ: " + (produkt instanceof Owoc ? "Owoc" : "Warzywo") +
+                                        ", Cena za 1kg: " + produkt.getCena() +
+                                        "zł, Data produkcji: " + produkt.getDataProdukcji() +
+                                        ", Data ważności: " + produkt.getDataWażności() +
+                                        ", Ilość dostępnych sztuk: " + produkt.getIlośćDostępnychSztuk() +
+                                        ", Dostawca: " + produkt.pobierzDostawcę().getNazwa());
+                            } else {
+                                System.out.println("Nie znaleziono dostawcy dla produktu: " + produkt.getNazwa());
+                            }
                         }
                     }
                     break;
@@ -272,6 +299,11 @@ public class Main {
                                     ", Numer kontaktowy: " + dostawca.getNumerKontaktowy());
                         }
                     }
+                    break;
+                case 11:
+                        System.out.println("Czacha już mi dymi.");
+                        // Wywołanie wyświetlania obrazka z osobnej klasy
+                        ImageDisplayer.showImage("palisie.jpg");
                     break;
                 case 0:
                     System.out.println("Dziękujemy za skorzystanie z programu.");

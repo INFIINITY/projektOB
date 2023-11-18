@@ -21,7 +21,7 @@ public class ZakladPrzetworstwa {
     public void DodajProdukt(Produkt produkt) {
         boolean produktIstnieje = false;
         for (Produkt p : produkty) {
-            if (p.getNazwa().equalsIgnoreCase(produkt.getNazwa())) {
+            if (p.getId() == produkt.getId()) { // Porównujemy produkty po ID
                 p.setIlośćDostępnychSztuk(p.getIlośćDostępnychSztuk() + 1);
                 produktIstnieje = true;
                 break;
@@ -64,6 +64,28 @@ public class ZakladPrzetworstwa {
 
     public List<Dostawca> getDostawcy() {
         return dostawcy;
+    }
+
+    public List<Dostawca> getListaDostawcow() {
+        return new ArrayList<>(dostawcy);
+    }
+
+    public Dostawca znajdzDostawceProduktu(Produkt produkt, List<Dostawca> listaDostawcow) {
+        for (Dostawca dostawca : listaDostawcow) {
+            if (produkt.pobierzDostawcę().getId() == dostawca.getId()) {
+                return dostawca;
+            }
+        }
+        return null;
+    }
+
+    public Dostawca znajdzDostawce(int id, List<Dostawca> listaDostawcow) {
+        for (Dostawca dostawca : listaDostawcow) {
+            if (dostawca.getId() == id) {
+                return dostawca;
+            }
+        }
+        return null;
     }
 
     public void setDostawcy(List<Dostawca> dostawcy) {

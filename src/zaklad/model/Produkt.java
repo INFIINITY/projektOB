@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public abstract class Produkt {
+    private static int kolejneID = 1;
+    private int id; // Dodane pole ID dla produktu
     private String nazwa;
     private double cena;
     private int ilośćDostępnychSztuk;
@@ -13,11 +15,16 @@ public abstract class Produkt {
     private Dostawca dostawcaProduktu; // Dodane pole przechowujące informację o dostawcy
 
     public Produkt(String nazwa, double cena, String dataProdukcji, String dataWażności) {
+        this.id = kolejneID++;
         this.nazwa = nazwa;
         this.cena = cena;
         this.ilośćDostępnychSztuk = 1;
         this.dataProdukcji = dataProdukcji;
         this.dataWażności = dataWażności;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getNazwa() {

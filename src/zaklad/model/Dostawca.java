@@ -1,14 +1,14 @@
 package zaklad.model;
 
 public class Dostawca {
-    private static int aktualneID = 1;
+    private static int kolejneID = 1;
     private int id;
     private String nazwa;
     private String adres;
     private String numerKontaktowy;
 
     public Dostawca(String nazwa, String adres, String numerKontaktowy, String kraj) {
-        this.id = aktualneID++;
+        this.id = kolejneID++;
         this.nazwa = nazwa;
         this.adres = adres;
         if (Klient.krajeIKody.containsKey(kraj.toLowerCase())) {
@@ -17,6 +17,14 @@ public class Dostawca {
         } else {
             this.numerKontaktowy = numerKontaktowy;
         }
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNazwa() {
