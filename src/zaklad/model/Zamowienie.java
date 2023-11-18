@@ -2,27 +2,40 @@ package zaklad.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Zamowienie {
+    private static int kolejneID = 1;
+    private int id;
     private Klient klient;
-    private ArrayList<PozycjaZamowienia> pozycjeZamowienia;
+    private Map<Produkt, Integer> produktyIZamowienia;
     private Date dataZlozenia;
     private StatusZamowienia status;
 
     public Zamowienie(Klient klient) {
+        this.id = kolejneID++;
         this.klient = klient;
-        this.pozycjeZamowienia = new ArrayList<>();
+        this.produktyIZamowienia = new HashMap<>();
         this.dataZlozenia = new Date();
         this.status = StatusZamowienia.NOWE;
     }
 
-    public void dodajPozycjeZamowienia(Produkt produkt, int ilość) {
-        PozycjaZamowienia pozycja = new PozycjaZamowienia(produkt, ilość);
-        pozycjeZamowienia.add(pozycja);
+    public int getId() {
+        return id;
     }
 
-    public void usuńPozycjęZamowienia(PozycjaZamowienia pozycja) {
-        pozycjeZamowienia.remove(pozycja);
+    public void dodajPozycjeZamowienia(Produkt produkt, int ilość) {
+        if (produktyIZamowienia.containsKey(produkt)) {
+            int staraIlosc = produktyIZamowienia.get(produkt);
+            produktyIZamowienia.put(produkt, staraIlosc + ilość);
+        } else {
+            produktyIZamowienia.put(produkt, ilość);
+        }
+    }
+
+    public void usuńPozycjęZamowienia(Produkt produkt) {
+        produktyIZamowienia.remove(produkt);
     }
 
     public Klient getKlient() {
@@ -41,4 +54,17 @@ public class Zamowienie {
         this.status = status;
     }
 
+    public Map<Produkt, Integer> getProduktyIZamowienia() {
+        return produktyIZamowienia;
+    }
+
+    public double obliczKwoteZamowienia() {
+        double suma = 0.0;
+        for (Map.Entry<Produkt, Integer> entry : produktyIZamowienia.entrySet()) {
+            Produkt produkt = entry.getKey();
+            int ilosc = entry.getValue();
+            suma += produkt.getCena() * ilosc;
+        }
+        return suma;
+    }
 }

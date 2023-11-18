@@ -5,14 +5,26 @@ import zaklad.model.produktyZakladu.*;
 import zaklad.serwis.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
-import static zaklad.model.Produkt.sprawdźPoprawnośćDaty;
+import static zaklad.model.StatusZamowienia.wyswietlStatusy;
 
 public class Main {
     public static void main(String[] args) {
         ZakladPrzetworstwa zakład = new ZakladPrzetworstwa();
         Scanner scanner = new Scanner(System.in);
+
+        // PRZYKLADOWE DANE DO DEBUGOWANIA:
+        Klient klient01 = new Klient("Patryk", "Gorczyca", "ul. Twarożkowa", "+48 232296292");
+        Dostawca dostawca01 = new Dostawca("PatrixonCorp", "ul. Sezamkowa", "232296292", "polska");
+        Klient klient02 = new Klient("Piotr", "Łata", "ul. Samojaka", "+48 131231213");
+        Dostawca dostawca02 = new Dostawca("KamilCO", "ul. Dziwaczna", "1231231312", "chiny");
+        zakład.DodajDostawcę(dostawca01);
+        zakład.DodajKlienta(klient01);
+        zakład.DodajDostawcę(dostawca02);
+        zakład.DodajKlienta(klient02);
+
 
         while (true) {
             System.out.println("Menu:");
@@ -20,13 +32,14 @@ public class Main {
             System.out.println("2. Dodaj dostawcę");
             System.out.println("3. Dodaj klienta");
             System.out.println("4. Złóż zamówienie");
-            System.out.println("5. Aktualizuj status zamówienia");
-            System.out.println("6. Generuj raport");
-            System.out.println("7. Oblicz zyski");
-            System.out.println("8. Pokaż dostępne produkty");
-            System.out.println("9. Pokaż listę klientów");
-            System.out.println("10. Pokaż listę dostawców");
-            System.out.println("11. Easter Egg");
+            System.out.println("5. Pokaż zamówienia");
+            System.out.println("6. Aktualizuj status zamówienia");
+            System.out.println("7. Generuj raport");
+            System.out.println("8. Oblicz zyski");
+            System.out.println("9. Pokaż dostępne produkty");
+            System.out.println("10. Pokaż listę klientów");
+            System.out.println("11. Pokaż listę dostawców");
+            System.out.println("12. Easter Egg");
             System.out.println("0. Wyjdź z programu");
 
             System.out.print("Wybierz opcję: ");
@@ -34,7 +47,6 @@ public class Main {
 
             switch (wybór) {
                 case 1:
-                    // Kod dla dodawania produktu
                     if (zakład.getListaDostawcow().isEmpty()) {
                         System.out.println("Nie ma żadnych dostawców. Najpierw dodaj dostawcę.");
                         break;
@@ -57,7 +69,6 @@ public class Main {
                     System.out.print("Podaj nazwę produktu (OWOC LUB WARZYWO): ");
                     String nazwaProduktu = scanner.next().toLowerCase();
 
-                    // Sprawdzenie istnienia produktu o danej nazwie i dodawanie produktu
                     boolean produktIstnieje = false;
                     for (Produkt p : zakład.getProdukty()) {
                         if (p.getNazwa().equals(nazwaProduktu) && p.pobierzDostawcę().getId() == idDostawcy) {
@@ -70,7 +81,7 @@ public class Main {
                     if (!produktIstnieje) {
                         double cenaProduktu;
                         while (true) {
-                            System.out.print("Podaj cenę produktu za 1kg: ");
+                            System.out.print("Podaj cenę produktu za 1 sztukę: ");
                             if (scanner.hasNextDouble()) {
                                 cenaProduktu = scanner.nextDouble();
                                 break;
@@ -110,7 +121,7 @@ public class Main {
                             System.out.println("Nieprawidłowy typ produktu. Dodanie produktu przerwane.");
                             break;
                         }
-                        // Przypisanie wybranego dostawcy do nowego produktu
+
                         produkt.przypiszDostawcę(wybranyDostawca);
                         zakład.DodajProdukt(produkt);
                         System.out.println("Produkt dodany.");
@@ -119,21 +130,18 @@ public class Main {
                     }
                     break;
                 case 2:
-                    // Dodawanie dostawcy
                     System.out.print("Podaj nazwę dostawcy: ");
                     String nazwaDostawcy = scanner.next();
 
-                    // Sprawdzenie istnienia dostawcy o podanej nazwie
                     if (zakład.sprawdzDostawcę(nazwaDostawcy)) {
                         System.out.println("Dostawca o podanej nazwie już istnieje.");
                         break;
                     }
 
                     System.out.print("Podaj adres dostawcy: ");
-                    scanner.nextLine(); // Czyść bufor przed wprowadzeniem adresu
+                    scanner.nextLine();
                     String adresDostawcy = scanner.nextLine();
 
-                    // Wyświetlanie dostępnych krajów (numery kierunkowe)
                     System.out.println("Dostępne kraje (numery kierunkowe):");
                     for (String kraj : Klient.krajeIKody.keySet()) {
                         System.out.println(kraj);
@@ -168,7 +176,6 @@ public class Main {
                     System.out.print("Podaj nazwisko klienta: ");
                     String nazwiskoKlienta = scanner.next();
 
-                    // Sprawdzenie istnienia klienta o podanych imieniu i nazwisku
                     if (zakład.sprawdzKlienta(imięKlienta, nazwiskoKlienta)) {
                         System.out.println("Klient o podanych danych już istnieje.");
                         break;
@@ -204,53 +211,175 @@ public class Main {
                     } while (!dodanoKlienta);
                     break;
                 case 4:
-                    Klient wybranyKlient = null;
-
                     if (zakład.getKlienci().isEmpty()) {
-                        System.out.println("Brak dostępnych klientów. Proszę utworzyć konto klienta.");
-                        break; // Powrót do głównego menu
-                    } else {
-                        System.out.println("Dostępni klienci:");
-                        for (Klient klient2 : zakład.getKlienci()) {
-                            System.out.println("ID: " + klient2.getKlientId() + ", " + klient2.getImie() + " " + klient2.getNazwisko());
-                        }
+                        System.out.println("Brak dostępnych klientów. Dodaj klienta, aby kontynuować.");
+                        break;
+                    }
 
-                        System.out.print("Podaj ID klienta: ");
-                        int clientId = scanner.nextInt();
+                    if (zakład.getProdukty().isEmpty()) {
+                        System.out.println("Brak dostępnych produktów. Powrót do menu.");
+                        break;
+                    }
 
-                        boolean klientExists = false;
-                        for (Klient klient : zakład.getKlienci()) {
-                            if (klient.getKlientId() == clientId) {
-                                wybranyKlient = klient;
-                                klientExists = true;
-                                break;
-                            }
-                        }
+                    System.out.println("Dostępni klienci:");
+                    for (Klient klient : zakład.getKlienci()) {
+                        System.out.println("ID: " + klient.getKlientId() + ", Imię i nazwisko: " + klient.getImie() + " " + klient.getNazwisko());
+                    }
 
-                        if (!klientExists) {
-                            System.out.println("Klient o podanym ID nie istnieje.");
+                    System.out.print("Podaj ID klienta, który składa zamówienie: ");
+                    int idKlienta = scanner.nextInt();
+
+                    Klient wybranyKlient = null;
+                    for (Klient klient : zakład.getKlienci()) {
+                        if (klient.getKlientId() == idKlienta) {
+                            wybranyKlient = klient;
                             break;
                         }
                     }
 
+                    if (wybranyKlient == null) {
+                        System.out.println("Nie ma klienta o podanym ID.");
+                        break;
+                    }
+
                     Zamowienie noweZamowienie = new Zamowienie(wybranyKlient);
-                    zakład.PrzyjmijZamówienie(noweZamowienie);
-                    System.out.println("Zamówienie zostało złożone.");
+                    do {
+                        if (zakład.getProdukty().isEmpty()) {
+                            System.out.println("Brak dostępnych produktów. Powrót do menu.");
+                            break;
+                        }
+
+                        System.out.println("Dostępne produkty:");
+                        for (Produkt produkt : zakład.getProdukty()) {
+                            System.out.println("ID: " + produkt.getId() +
+                                    ", Nazwa: " + produkt.getNazwa() +
+                                    ", Typ: " + (produkt instanceof Owoc ? "Owoc" : "Warzywo") +
+                                    ", Cena za 1 sztukę: " + produkt.getCena() +
+                                    "zł, Data produkcji: " + produkt.getDataProdukcji() +
+                                    ", Data ważności: " + produkt.getDataWażności() +
+                                    ", Ilość dostępnych sztuk: " + produkt.getIlośćDostępnychSztuk() +
+                                    ", Dostawca: " + produkt.pobierzDostawcę().getNazwa());
+                        }
+
+                        System.out.print("Podaj ID produktu do zamówienia: ");
+                        int idProduktu = scanner.nextInt();
+
+                        Produkt wybranyProdukt = null;
+                        for (Produkt produkt : zakład.getProdukty()) {
+                            if (produkt.getId() == idProduktu) {
+                                wybranyProdukt = produkt;
+                                break;
+                            }
+                        }
+
+                        if (wybranyProdukt == null) {
+                            System.out.println("Nie ma produktu o podanym ID.");
+                            continue;
+                        }
+
+                        int ilosc = 0;
+                        boolean poprawnaIlosc = false;
+                        do {
+                            System.out.print("Podaj ilość produktu '" + wybranyProdukt.getNazwa() + "': ");
+                            ilosc = scanner.nextInt();
+
+                            if (ilosc < 0 || ilosc > wybranyProdukt.getIlośćDostępnychSztuk()) {
+                                System.out.println("Nieprawidłowa ilość.");
+                            } else {
+                                poprawnaIlosc = true;
+                            }
+                        } while (!poprawnaIlosc);
+
+                        if (poprawnaIlosc) {
+                            noweZamowienie.dodajPozycjeZamowienia(wybranyProdukt, ilosc);
+                            wybranyProdukt.setIlośćDostępnychSztuk(wybranyProdukt.getIlośćDostępnychSztuk() - ilosc);
+
+                            System.out.print("Czy chcesz dodać kolejny produkt? (T/N): ");
+                            String kontynuacja = scanner.next().toUpperCase();
+                            if (!kontynuacja.equals("T")) {
+                                zakład.PrzyjmijZamówienie(noweZamowienie);
+                                System.out.println("Zamówienie złożone.");
+                                System.out.println("Łączna kwota zamówienia: " + noweZamowienie.obliczKwoteZamowienia() + " zł");
+                                break;
+                            }
+                        }
+                    } while (true);
                     break;
                 case 5:
-                    // Aktualizacja statusu zamówienia
-                    // ...
+                    System.out.println("Lista wszystkich zamówień:");
+                    zakład.wyswietlZamowienia();
                     break;
                 case 6:
-                    // Generowanie raportu
-                    // ...
+                    System.out.println("Aktualizacja statusu zamówienia");
+                    if (zakład.getZamowienia().isEmpty()) {
+                        System.out.println("Brak zamówień do aktualizacji.");
+                        break;
+                    }
+
+                    System.out.println("Dostępne zamówienia:");
+                    zakład.wyswietlZamowienia();
+
+                    System.out.print("Podaj ID zamówienia do aktualizacji statusu: ");
+                    int idZamowienia = scanner.nextInt();
+
+                    Zamowienie wybraneZamowienie = null;
+                    for (Zamowienie zamowienie : zakład.getZamowienia()) {
+                        if (zamowienie.getId() == idZamowienia) {
+                            wybraneZamowienie = zamowienie;
+                            break;
+                        }
+                    }
+
+                    if (wybraneZamowienie != null) {
+                        StatusZamowienia.wyswietlStatusy();
+                        System.out.print("Wybierz nowy status zamówienia (1-4): ");
+                        int wybranyStatus = scanner.nextInt();
+
+                        switch (wybranyStatus) {
+                            case 1:
+                                zakład.AktualizujStatusZamówienia(wybraneZamowienie, StatusZamowienia.NOWE);
+                                break;
+                            case 2:
+                                zakład.AktualizujStatusZamówienia(wybraneZamowienie, StatusZamowienia.W_REALIZACJI);
+                                break;
+                            case 3:
+                                zakład.AktualizujStatusZamówienia(wybraneZamowienie, StatusZamowienia.DOSTARCZONE);
+                                break;
+                            case 4:
+                                zakład.AktualizujStatusZamówienia(wybraneZamowienie, StatusZamowienia.ANULOWANE);
+                                break;
+                            default:
+                                System.out.println("Nieprawidłowy wybór.");
+                        }
+                    } else {
+                        System.out.println("Nie ma zamówienia o podanym ID.");
+                    }
                     break;
                 case 7:
-                    // Obliczanie zysków
-                    // ...
+                    int liczbaKlientow = zakład.getKlienci().size();
+                    int liczbaDostawcow = zakład.getDostawcy().size();
+                    int liczbaZamowien = zakład.getZamowienia().size();
+                    int liczbaProduktow = zakład.getProdukty().size();
+
+                    System.out.println("===================================");
+                    System.out.println("            Raport");
+                    System.out.println("===================================");
+                    System.out.println(String.format("%-25s %s", "Liczba klientów:", liczbaKlientow));
+                    System.out.println(String.format("%-25s %s", "Liczba dostawców:", liczbaDostawcow));
+                    System.out.println(String.format("%-25s %s", "Liczba zamówień:", liczbaZamowien));
+                    System.out.println(String.format("%-25s %s", "Liczba produktów:", liczbaProduktow));
+                    System.out.println("===================================");
                     break;
                 case 8:
-                    // Wyświetlanie produktów
+                    double sumaKwotZamowien = 0;
+
+                    for (Zamowienie zamowienie : zakład.getZamowienia()) {
+                        sumaKwotZamowien += zamowienie.obliczKwoteZamowienia();
+                    }
+
+                    System.out.println("Łączna kwota wszystkich zamówień: " + sumaKwotZamowien + " zł");
+                    break;
+                case 9:
                     if (zakład.getProdukty().isEmpty()) {
                         System.out.println("Nie posiadamy produktów.");
                     } else {
@@ -261,7 +390,7 @@ public class Main {
                                 System.out.println("ID: " + produkt.getId() +
                                         ", Nazwa: " + produkt.getNazwa() +
                                         ", Typ: " + (produkt instanceof Owoc ? "Owoc" : "Warzywo") +
-                                        ", Cena za 1kg: " + produkt.getCena() +
+                                        ", Cena za 1 sztukę: " + produkt.getCena() +
                                         "zł, Data produkcji: " + produkt.getDataProdukcji() +
                                         ", Data ważności: " + produkt.getDataWażności() +
                                         ", Ilość dostępnych sztuk: " + produkt.getIlośćDostępnychSztuk() +
@@ -272,7 +401,7 @@ public class Main {
                         }
                     }
                     break;
-                case 9:
+                case 10:
                     List<Klient> klienci = zakład.getKlienci();
                     if (klienci.isEmpty()) {
                         System.out.println("Nie posiadamy żadnych klientów.");
@@ -287,7 +416,7 @@ public class Main {
                         }
                     }
                     break;
-                case 10:
+                case 11:
                     List<Dostawca> dostawcy = zakład.getDostawcy();
                     if (dostawcy.isEmpty()) {
                         System.out.println("Nie posiadamy żadnych dostawców.");
@@ -300,10 +429,9 @@ public class Main {
                         }
                     }
                     break;
-                case 11:
+                case 12:
                         System.out.println("Czacha już mi dymi.");
-                        // Wywołanie wyświetlania obrazka z osobnej klasy
-                        ImageDisplayer.showImage("palisie.jpg");
+                        Dodatek.odpalZdjecie("palisie.jpg");
                     break;
                 case 0:
                     System.out.println("Dziękujemy za skorzystanie z programu.");

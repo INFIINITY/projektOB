@@ -4,6 +4,7 @@ import zaklad.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ZakladPrzetworstwa {
     private List<Produkt> produkty;
@@ -21,7 +22,7 @@ public class ZakladPrzetworstwa {
     public void DodajProdukt(Produkt produkt) {
         boolean produktIstnieje = false;
         for (Produkt p : produkty) {
-            if (p.getId() == produkt.getId()) { // Porównujemy produkty po ID
+            if (p.getId() == produkt.getId()) {
                 p.setIlośćDostępnychSztuk(p.getIlośćDostępnychSztuk() + 1);
                 produktIstnieje = true;
                 break;
@@ -118,35 +119,42 @@ public class ZakladPrzetworstwa {
         return zamówieniaKlienta;
     }
 
+    public void wyswietlZamowienia() {
+        for (Zamowienie zamowienie : zamowienia) {
+            System.out.print("ID: " + zamowienie.getId() + ", ");
+            System.out.print("Klient: " + zamowienie.getKlient().getImie() + " " + zamowienie.getKlient().getNazwisko() + ", ");
+            System.out.print("Produkty: ");
+            int counter = 0;
+            for (Map.Entry<Produkt, Integer> entry : zamowienie.getProduktyIZamowienia().entrySet()) {
+                Produkt produkt = entry.getKey();
+                int ilosc = entry.getValue();
+                System.out.print(produkt.getNazwa() + " x" + ilosc);
+                counter++;
+                if (counter < zamowienie.getProduktyIZamowienia().size()) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.print(", Data: " + zamowienie.getDataZlozenia() + ", ");
+            System.out.print("Cena Zamówienia: " + zamowienie.obliczKwoteZamowienia() + " zł, ");
+            System.out.println("Status: " + zamowienie.getStatus());
+        }
+    }
+
     public boolean sprawdzKlienta(String imie, String nazwisko) {
         for (Klient klient : klienci) {
             if (klient.getImie().equalsIgnoreCase(imie) && klient.getNazwisko().equalsIgnoreCase(nazwisko)) {
-                return true; // Klient o podanych imieniu i nazwisku już istnieje
+                return true;
             }
         }
-        return false; // Klient o podanych imieniu i nazwisku nie istnieje
+        return false;
     }
 
     public boolean sprawdzDostawcę(String nazwa) {
         for (Dostawca dostawca : dostawcy) {
             if (dostawca.getNazwa().equalsIgnoreCase(nazwa)) {
-                return true; // Dostawca o podanej nazwie już istnieje
+                return true;
             }
         }
-        return false; // Dostawca o podanej nazwie nie istnieje
+        return false;
     }
-
-    public void WygenerujRaport() {
-        System.out.println("Raport wygenerowany.");
-    }
-
-//    public double ObliczZyski() {
-////        double zyski = 0.0;
-////        for (Zamowienie zamowienie : zamowienia) {
-////            for (PozycjaZamowienia pozycja : zamowienie.getPozycjZamowienia()) {
-////                zyski += pozycja.getProdukt().getCena() * pozycja.getIlość();
-////            }
-////        }
-////        return zyski;
-//    }
 }

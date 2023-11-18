@@ -1,16 +1,18 @@
 package zaklad;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 
-class ImageDisplayer {
-    public static void showImage(final String fileName) {
+class Dodatek {
+    public static void odpalZdjecie(final String fileName) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 JFrame f = new JFrame();
                 f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-                // Uzyskanie ścieżki do pliku z katalogu src
                 ClassLoader classLoader = getClass().getClassLoader();
                 java.net.URL imgUrl = classLoader.getResource(fileName);
 
@@ -27,6 +29,20 @@ class ImageDisplayer {
                 f.setVisible(true);
             }
         });
+    }
+
+    public static void odpalDzwiek(String soundFileName) {
+        try {
+            ClassLoader classLoader = Dodatek.class.getClassLoader();
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(
+                    classLoader.getResourceAsStream(soundFileName));
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (Exception e) {
+            System.err.println("Błąd podczas odtwarzania dźwięku: " + e.getMessage());
+        }
     }
 }
 

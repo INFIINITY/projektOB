@@ -6,13 +6,13 @@ import java.time.format.DateTimeParseException;
 
 public abstract class Produkt {
     private static int kolejneID = 1;
-    private int id; // Dodane pole ID dla produktu
+    private int id;
     private String nazwa;
     private double cena;
     private int ilośćDostępnychSztuk;
     private String dataProdukcji;
     private String dataWażności;
-    private Dostawca dostawcaProduktu; // Dodane pole przechowujące informację o dostawcy
+    private Dostawca dostawcaProduktu;
 
     public Produkt(String nazwa, double cena, String dataProdukcji, String dataWażności) {
         this.id = kolejneID++;
@@ -76,12 +76,10 @@ public abstract class Produkt {
         }
     }
 
-    // Dodana metoda do przypisywania dostawcy do produktu
     public void przypiszDostawcę(Dostawca dostawca) {
         this.dostawcaProduktu = dostawca;
     }
 
-    // Dodana metoda do pobierania dostawcy produktu
     public Dostawca pobierzDostawcę() {
         return dostawcaProduktu;
     }
